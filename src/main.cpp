@@ -46,7 +46,7 @@ bool read_pcd_bin(const std::string &fname,
   std::cout << "not close points num: " << points_buffer_not_close.size()
             << std::endl;
 
-  for (size_t i = 0; i < 9; ++i) {
+  for (size_t i = 0; i < 4; ++i) {
     intensities_buffer.insert(intensities_buffer.end(),
                               intensities_buffer_not_close.begin(),
                               intensities_buffer_not_close.end());

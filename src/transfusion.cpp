@@ -179,7 +179,6 @@ int Transfusion::infer(void *points_data, unsigned int points_size,
   std::cout << "find pillar_num: " << params_input_cpu << std::endl;
 
   float inferTime = 0.0f;
-  checkCudaErrors(cudaEventRecord(start_, stream_));
 
   engine_->setTensorAddress("voxels", voxel_features_);
   engine_->setInputShape(
@@ -192,10 +191,12 @@ int Transfusion::infer(void *points_data, unsigned int points_size,
   engine_->setTensorAddress("coors", voxel_idxs_);
   engine_->setInputShape(
       "coors", nvinfer1::Dims2{static_cast<int32_t>(params_input_cpu), 4});
-  engine_->setTensorAddress("cls_score", cls_output_);
-  engine_->setTensorAddress("bbox_pred", box_output_);
-  engine_->setTensorAddress("dir_cls_pred", dir_cls_output_);
-  engine_->infer();
+  engine_->setTensorAddress("cls_score0", cls_output_);
+  engine_->setTensorAddress("bbox_pred0", box_output_);
+  engine_->setTensorAddress("dir_cls_pred0", dir_cls_output_);
+  for (int i = 0; i < 5; ++i) engine_->infer();
+  checkCudaErrors(cudaEventRecord(start_, stream_));
+  for (int i = 0; i < 10; ++i) engine_->infer();
 
   checkCudaErrors(cudaEventRecord(stop_, stream_));
   checkCudaErrors(cudaEventSynchronize(stop_));
@@ -231,7 +232,7 @@ int Transfusion::infer(void *points_data, unsigned int points_size,
   }
   std::cout << "TIME: generateVoxels: " << generateVoxelsTime << " ms."
             << std::endl;
-  std::cout << "TIME: infer: " << inferTime << " ms." << std::endl;
+  std::cout << "TIME: infer: " << inferTime / 10.0 << " ms." << std::endl;
   return 0;
 }
 } // namespace transfusion
